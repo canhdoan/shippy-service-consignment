@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	// Import the generated protobuf code
+	pb "github.com/canhdoan/shippy-service-consignment/proto/consignment"
 	"github.com/micro/go-micro"
-	pb "gitlab.asoft-python.com/g-canhdoan/golang-training/shippy-service-consignment/proto/consignment"
 )
 
 var port = flag.String("l", ":5100", "Specify the port that the server will listen on")
