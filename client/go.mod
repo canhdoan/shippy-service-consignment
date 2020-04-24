@@ -1,5 +1,3 @@
-module gitlab.asoft-python.com/g-canhdoan/golang-training/shippy-service-consignment/client
+module github.com/canhdoan/shippy-service-consignment/client
 
-go 1.13
-
-require github.com/micro/go-micro v1.18.0
+go 1.14
