@@ -29,14 +29,6 @@ func parseFile(file string) (*pb.Consignment, error) {
 }
 
 func main() {
-	// // connect to service
-	// conn, err := grpc.Dial(address, grpc.WithInsecure())
-	// if err != nil {
-	// 	log.Fatalf("Did not connect: %v", err)
-	// }
-	// defer conn.Close()
-	// client := pb.NewShippingServiceClient(conn)
-
 	service := micro.NewService(micro.Name("shippy.consignment.cli"))
 	service.Init()
 
