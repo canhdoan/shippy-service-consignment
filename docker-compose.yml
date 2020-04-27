@@ -1,5 +1,5 @@
 # docker-compose.yml
-version: '3'
+version: '3.5'
 
 services:
     shippy-service-consignment:
@@ -33,9 +33,9 @@ services:
             - 27017
         command: mongod --logpath=/dev/null
 
-    networks:
-        consignment-tier:
-            name: consignment-tier
-        shippy-backend-tier:
-            name: shippy-backend-tier
+networks:
+    consignment-tier:
+        name: consignment-tier
+    shippy-backend-tier:
+        name: shippy-backend-tier
     

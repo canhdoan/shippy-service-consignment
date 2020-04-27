@@ -3,68 +3,47 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
+	"log"
+	"os"
 
 	// Import the generated protobuf code
 	pb "github.com/canhdoan/shippy-service-consignment/proto/consignment"
+	vesselProto "github.com/canhdoan/shippy-service-vessel/proto/vessel"
 	"github.com/micro/go-micro"
 )
 
-var port = flag.String("l", ":5100", "Specify the port that the server will listen on")
-
-type repository interface {
-	Create(*pb.Consignment) (*pb.Consignment, error)
-	GetAll() []*pb.Consignment
-}
-
-type Repository struct {
-	consignments []*pb.Consignment
-}
-
-// Create a new consignment
-func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment, error) {
-	updated := append(repo.consignments, consignment)
-	repo.consignments = updated
-	return consignment, nil
-}
-
-func (repo *Repository) GetAll() []*pb.Consignment {
-	return repo.consignments
-}
-
-type service struct {
-	repo repository
-}
-
-func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
-	consignment, err := s.repo.Create(req)
-	if err != nil {
-		return err
-	}
-
-	res.Created = true
-	res.Consignment = consignment
-	return nil
-}
-
-func (s *service) GetConsignments(ctx context.Context, req *pb.GetConsignmentRequest, res *pb.Response) error {
-	consignments := s.repo.GetAll()
-	res.Consignments = consignments
-	return nil
-}
+const (
+	defaultHost = "datastore:27017"
+)
 
 func main() {
-	repo := &Repository{}
-
-	// create a new service
+	// Set-up micro instance
 	srv := micro.NewService(
 		micro.Name("shippy.service.consignment"),
 	)
+
 	srv.Init()
 
-	// Register our service with the gRPC server
-	pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
+	uri := os.Getenv("DB_HOST")
+	if uri == "" {
+		uri = defaultHost
+	}
+
+	client, err := CreateClient(context.Background(), uri, 0)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer client.Disconnect(context.Background())
+
+	consignmentCollection := client.Database("shippy").Collection("consignments")
+
+	repository := &MongoRepository{consignmentCollection}
+	vesselClient := vesselProto.NewVesselServiceClient("shippy.service.client", srv.Client())
+	h := &handler{repository, vesselClient}
+
+	// Register handlers
+	pb.RegisterShippingServiceHandler(srv.Server(), h)
 
 	// Run the server
 	if err := srv.Run(); err != nil {
