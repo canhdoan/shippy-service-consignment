@@ -4,12 +4,13 @@ This project is followed the tutorial series of [Ewan Valentine](https://ewanval
 - Go
 - Mongodb
 - gRPC
+- go-micro
 - Docker
-- Google Cloud
-- Kubernetes
-- NATS
-- CircleCI
-- Terraform and go-micro.
+- Google Cloud(Optional)
+- Kubernetes(Optional)
+- NATS(Optional)
+- CircleCI(Optional)
+- Terraform(Optional)
 
 # Articles
 
@@ -32,3 +33,45 @@ This project is followed the tutorial series of [Ewan Valentine](https://ewanval
 [Part 9](https://ewanvalentine.io/microservices-in-golang-part-9/)
 
 [Part 10](https://ewanvalentine.io/microservices-in-golang-part-10/)
+
+# Examples
+
+## Consignment Service
+
+- [Source](https://github.com/canhdoan/shippy-service-consignment.git)
+
+- Run
+
+```sh
+$ make
+```
+
+## Vessel Service
+
+- [Source](https://github.com/canhdoan/shippy-service-vessel.git)
+
+- Run
+
+```sh
+$ make
+```
+
+## Consignment Client
+
+- [Source](https://github.com/canhdoan/shippy-client-consignment.git)
+
+- Run
+
+```sh
+$ make
+```
+
+## User Service
+
+- [Source](https://github.com/canhdoan/shippy-service-user.git)
+
+- Run
+
+```sh
+$ make
+```
