@@ -2,7 +2,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -14,36 +13,34 @@ import (
 )
 
 const (
-	defaultHost = "datastore:27017"
+	defaultHost = "localhost:27017"
 )
 
 func main() {
-	// Set-up micro instance
+	host := os.Getenv("DB_HOST")
+	if host == "" {
+		host = defaultHost
+	}
+
+	session, err := CreateSession(host)
+	defer session.Close()
+
+	if err != nil {
+		log.Panicf("Could not connect to datastore with host %s - %v", host, err)
+	}
+
 	srv := micro.NewService(
-		micro.Name("shippy.service.consignment"),
+		micro.Name("go.micro.srv.consignment"),
+		micro.Version("latest"),
 	)
 
+	vesselClient := vesselProto.NewVesselServiceClient("go.micro.srv.vessel", srv.Client())
+
+	// Init will parse the command line flags.
 	srv.Init()
 
-	uri := os.Getenv("DB_HOST")
-	if uri == "" {
-		uri = defaultHost
-	}
-
-	client, err := CreateClient(context.Background(), uri, 0)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer client.Disconnect(context.Background())
-
-	consignmentCollection := client.Database("shippy").Collection("consignments")
-
-	repository := &MongoRepository{consignmentCollection}
-	vesselClient := vesselProto.NewVesselServiceClient("shippy.service.client", srv.Client())
-	h := &handler{repository, vesselClient}
-
-	// Register handlers
-	pb.RegisterShippingServiceHandler(srv.Server(), h)
+	// Register handler
+	pb.RegisterShippingServiceHandler(srv.Server(), &service{session, vesselClient})
 
 	// Run the server
 	if err := srv.Run(); err != nil {
